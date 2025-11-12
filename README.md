@@ -119,6 +119,10 @@ The repository includes a complete Prometheus and Grafana monitoring stack with 
    - Default credentials: `admin` / `admin` (you'll be prompted to change the password)
    - Navigate to Dashboards → LLM Performance Dashboard
 
+### LLM Performance Dashboard
+
+![Grafana Dashboard](assets/grafana.png)
+
 ### Monitoring Features
 
 The monitoring stack includes:
