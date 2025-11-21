@@ -1,22 +1,40 @@
 apiVersion: serving.kserve.io/v1alpha1
 kind: LLMInferenceService
 metadata:
-  name: qwen
+  name: qwen3-cache-routing
   namespace: demo-llm
   annotations:
-    opendatahub.io/hardware-profile-name: gpu-profile
+    opendatahub.io/hardware-profile-name: small-gpu
     opendatahub.io/hardware-profile-namespace: redhat-ods-applications
     opendatahub.io/model-type: generative
-    openshift.io/display-name: qwen
+    openshift.io/display-name: qwen3-cache-routing
     security.opendatahub.io/enable-auth: 'false'
+  labels:
+    app.kubernetes.io/component: llm-inference
+    app.kubernetes.io/name: qwen3-cache-routing
+    app.kubernetes.io/instance: qwen3-cache-routing
+    kueue.x-k8s.io/queue-name: default
+    opendatahub.io/dashboard: "true"
+    opendatahub.io/genai-asset: "true"
 spec:
   replicas: 2
   model:
-    uri: hf://Qwen/Qwen3-0.6B
-    name: Qwen/Qwen3-0.6B
+    uri: oci://registry.redhat.io/rhelai1/modelcar-qwen3-8b-fp8-dynamic:latest
+    name: RedHatAI/Qwen3-8B-FP8-dynamic
   router:
     scheduler:
       template:
+        affinity:
+          podAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              labelSelector:
+                matchExpressions:
+                - key: app.kubernetes.io/name
+                  operator: In
+                  values:
+                  - qwen3-cache-routing
+              topologyKey: "kubernetes.io/hostname"
         containers:
           - name: main
             env:
@@ -75,6 +93,17 @@ spec:
     route: { }
     gateway: { }
   template:
+    affinity:
+      podAntiAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+        - weight: 50
+          labelSelector:
+            matchExpressions:
+            - key: kserve.io/component
+              operator: In
+              values:
+              - workload
+          topologyKey: "kubernetes.io/hostname"
     tolerations:
       - key: "nvidia.com/gpu"
         operator: "Exists"

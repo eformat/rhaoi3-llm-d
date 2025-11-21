@@ -128,3 +128,23 @@ spec:
     port: 9090
     targetPort: 9090
     protocol: TCP
+---
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: prometheus
+  namespace: llm-d-monitoring
+  annotations:
+    openshift.io/host.generated: 'true'
+spec:
+  to:
+    kind: Service
+    name: prometheus
+    weight: 100
+  port:
+    targetPort: web
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+  wildcardPolicy: None
+status: {}

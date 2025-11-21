@@ -5,4 +5,6 @@ metadata:
     openshift.io/display-name: Demo - LLM-d
   labels:
     openshift.io/cluster-monitoring: "true"
+    opendatahub.io/dashboard: "true"
+    kueue.openshift.io/managed: "true"
   name: demo-llm
